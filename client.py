@@ -33,9 +33,13 @@ def opts():
     if len(args)<1:
         parser.error('You need to give "send" or "receive" as <action>.')
     action = args[0]
+    if action not in ['send', 'receive']:
+        parser.error('You need to give "send" or "receive" as <action>.')
     filepath = None
     if action == 'send':
         filepath = args[1]
+        if not os.path.exists(filepath):
+            parser.error("The file {0} doesn't exsits".format(filepath))
     return options, action, filepath
 
 def main(opts, action, filepath=None):
@@ -87,10 +91,14 @@ class Client(object):
             filedata=self.socket_handle.recv(BUFSIZE)
             if not filedata:
                 self.connect_state = False
-                break                
-            filehandle = open(hashlib.md5(filedata).hexdigest(), 'wb')
-            filehandle.write(filedata)
-            filehandle.close()
+                break
+            try:                
+                filehandle = open(hashlib.md5(filedata).hexdigest(), 'wb')
+                filehandle.write(filedata)
+                filehandle.close()
+            except:
+                raise ClientException('Cannot write data to current directory.')
+
     #send file data
     def  sendfile(self,filepath):
         #the max size of filedata is BUFSIZE ,if a file is larger than BUFSIZE,
