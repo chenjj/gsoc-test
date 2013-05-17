@@ -18,9 +18,8 @@ OP_RECV = 1 #receive file
 # the max size of signle file
 BUFSIZE = 40960
 
-
-#prase the options 
 def opts():
+    """prase the options."""
     usage="%prog --host host -p port <action> [<filepath>]"
     parser = optparse.OptionParser(usage=usage)
     parser.add_option("--host",
@@ -43,6 +42,7 @@ def opts():
     return options, action, filepath
 
 def main(opts, action, filepath=None):
+    """main function."""
     try:
         client = Client(opts.host, opts.port)
     except ClientException, e:
@@ -56,10 +56,13 @@ def main(opts, action, filepath=None):
     client.close()
 
 class ClientException(Exception):
+    """client exception"""
     pass
 
 class Client(object):
+    """A simple Client which can send and receive files"""
     def __init__(self, host, port,reconnect=True):
+        """simple constructor"""
         self.host=host
         self.port=port
         self.connect_state = False
@@ -67,6 +70,7 @@ class Client(object):
         self.connect();
 
     def connect(self):
+        """Connect to the server"""
         logger.info('connecting to {0}:{1}'.format(self.host, self.port))
         self.socket_handle = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket_handle.settimeout(3)
@@ -79,8 +83,8 @@ class Client(object):
         self.socket_handle.settimeout(None)
         self.socket_handle.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
 
-    #receive the data and store it ,name the file after its md5
     def receivefile(self):
+        """receive the data and store it ,name the file after its md5"""
         #send a subscribe message to the server 
         fileheader = struct.pack('!iB', 5, OP_RECV)
         ml, opcode = struct.unpack('!iB', buffer(fileheader,0,5))
@@ -99,8 +103,8 @@ class Client(object):
             except:
                 raise ClientException('Cannot write data to current directory.')
 
-    #send file data
     def  sendfile(self,filepath):
+        """send file data"""
         #the max size of filedata is BUFSIZE ,if a file is larger than BUFSIZE,
         #  it will only send  first BUFSIZE bytes.
         filehandle = open(filepath, 'rb')
@@ -113,6 +117,7 @@ class Client(object):
         filehandle.close()
 
     def close(self):
+        """Close client"""
         try: 
             self.socket_handle.close()
             self.connect_state = False
