@@ -46,11 +46,13 @@ class TestFileTransferServer(unittest.TestCase):
         recv_thread.start()
         #send file
         send_sock.sendfile("data")
+        #wait for socket I/O to finish, or the test will fail.
         time.sleep(0.5)
         self.assertTrue(os.path.exists("1135f0fa7fa005db3d04269e0bdc47e4"))
         recv_sock.close()
         send_sock.close()
         file_transer_server.shutdown()
+        #wait for the socket I/O to finish
         time.sleep(0.5)
 
 def suite():

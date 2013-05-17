@@ -27,17 +27,11 @@ class BaseServer(object):
 
     def handle_connection(self):
         """Handle one new connection"""
-        self.logger.debug('handle_connection')
+        raise NotImplementedError()
 
     def handle_msg(self, msg):
         """Handle one incoming message"""
-        self.logger.debug('handle_msg')
-        if not msg:
-            self.logger.info("Client exited")
-            return False
-        else:
-            self.logger.info("Received message {0}".format(msg))
-            return True
+        raise NotImplementedError()
 
     def shutdown(self):
         """Close server"""
@@ -45,7 +39,7 @@ class BaseServer(object):
 
     def serve(self):
         """Server start"""
-        pass
+        raise NotImplementedError()
 
 class StreamServer(BaseServer):
     """Derive a simple TCP server from BaseServer"""
@@ -92,7 +86,16 @@ class StreamServer(BaseServer):
             self.server_sock.close()
 
 class FileTransferServer(StreamServer):
-    """A simple server to transfer file from one client to another"""
+    """
+    A simple server to transfer file from one client to another.
+    The file data is packed in a message. 
+    Message format: | Messagelen | opcode | filedata
+                    |---4bytes---|-1bytes-|---------
+    Message types:
+         opcode=0:send file data
+         opcode=1:recv file data
+    If a client wants to receive file data , it will send a recv msg with opcode=1 firstly.
+    """
     def __init__(self, host, port):
         super(FileTransferServer, self).__init__(host, port)
         self.recv_collection = set()
@@ -106,6 +109,7 @@ class FileTransferServer(StreamServer):
                 data = self.recv_msg(client_sock)
                 if not len(data):
                     break
+                #wait for socket I/O to finish, or the server will show "connection reset by pee" error
                 time.sleep(0.1)
                 self.handle_msg(client_sock, data)
         finally:

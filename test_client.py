@@ -10,7 +10,7 @@ from client import Client
 
 class ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
     def server_bind(self):
-        #set reuseaddr option
+        """set reuseaddr option"""
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.socket.bind(self.server_address)
 
