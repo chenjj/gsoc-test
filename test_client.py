@@ -9,7 +9,11 @@ import time
 from client import Client
 
 class ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
-    pass
+    def server_bind(self):
+        #set reuseaddr option
+        self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self.socket.bind(self.server_address)
+
 class ThreadedTCPRequestHandler(SocketServer.BaseRequestHandler):
     def handle(self):
         data = self.request.recv(40960)
@@ -25,18 +29,21 @@ class ThreadedTCPRequestHandler(SocketServer.BaseRequestHandler):
 class TestClient(unittest.TestCase):
     def setUp(self):
         self.server = ThreadedTCPServer(('127.0.0.1', 1234), ThreadedTCPRequestHandler)
+        #start server
         self.server_thread = threading.Thread(target=self.server.serve_forever)
         self.server_thread.daemon = True
         self.server_thread.start()
 
     def tearDown(self):
         self.server.shutdown()
+        #close the server socket
+        self.server.socket.close()
         #md5("abcdABCD1234%$#(") = 1135f0fa7fa005db3d04269e0bdc47e4
         if os.path.exists("1135f0fa7fa005db3d04269e0bdc47e4"):
             os.remove("1135f0fa7fa005db3d04269e0bdc47e4")
 
-    #test send file
     def test_send_file(self):
+        """test send file"""
         clientsock = Client("127.0.0.1",1234)
         #send test data
         clientsock.sendfile("data")
@@ -44,18 +51,18 @@ class TestClient(unittest.TestCase):
         self.assertTrue(hashlib.md5(data).hexdigest() == "1135f0fa7fa005db3d04269e0bdc47e4")
         clientsock.close()
     
-    #test receive file
     def test_receive_file(self):
+        """test receive file"""
         clientsock = Client("127.0.0.1",1234)
         #receive test data
         clientsock.receivefile()
         self.assertTrue(os.path.exists("1135f0fa7fa005db3d04269e0bdc47e4"))
         clientsock.close()
 
-    def suite():
-        suite = unittest.TestSuite()
-        suite.addTest(TestClient())
-        return suite
+def suite():
+    suite = unittest.TestSuite()
+    suite.addTest(TestClient())
+    return suite
 
 if __name__ == "__main__":
     unittest.main()
