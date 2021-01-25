@@ -3,22 +3,24 @@ gsoc-test
 
 A simple socket program to read arbitrary input from one socket and write it to another socket.
 
-##client
-This  program  is a client to send or receive  file data.
-* The recieved file will be named as its md5 value.
+# Client
+The client will send or receive file data to server. The recieved file will be named as its md5 value.
 
-usage:
-python  client.py --host host -p port action [filepath]
+Example usage:
 
-##server
-This program is a server which is listening on port 1234.
-The server receives the file from the sender,and sends it to the receiver.
-Message Format:  MessageLength | opcode | filedata
+`python  client.py --host host -p port action [filepath]`
 
-usage:
-python server.py
+## Server
+The server will listen on port 1234 to receives the file from client and send it back.
 
-##example
+`Message Format:  MessageLength | opcode | filedata`
+
+Example usage:
+
+`python server.py`
+
+## Example
+
 1.run `$ python server.py` to start server
 
 2.run `$ python client.py --host 127.0.0.1 -p 1234 receive` to receive file
