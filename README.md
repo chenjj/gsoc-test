@@ -10,14 +10,12 @@ Example usage:
 
 `python  client.py --host host -p port action [filepath]`
 
+Two actions: `receive` and `send`.
+
 ## Server
 The server will listen on port 1234 to receives the file from client and send it back.
 
 `Message Format:  MessageLength | opcode | filedata`
-
-Example usage:
-
-`python server.py`
 
 ## Example
 
