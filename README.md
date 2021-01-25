@@ -21,7 +21,7 @@ Example usage:
 
 ## Example
 
-1.run `$ python server.py` to start server
+1.run `$ python server.py` to start the server
 
 2.run `$ python client.py --host 127.0.0.1 -p 1234 receive` to receive file
 
