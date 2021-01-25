@@ -15,10 +15,6 @@ The server will listen on port 1234 to receives the file from client and send it
 
 `Message Format:  MessageLength | opcode | filedata`
 
-Example usage:
-
-`python server.py`
-
 ## Example
 
 1.run `$ python server.py` to start the server
